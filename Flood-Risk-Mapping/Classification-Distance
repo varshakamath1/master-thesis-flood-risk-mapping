@@ -1,0 +1,57 @@
+//##################################
+// Classification of Distance Values
+//##################################
+
+
+//Access the CSV with all indices values
+var indices_values = ee.FeatureCollection("users/varshakamath/Final_risk_levels");
+
+
+//Classify distance based on values
+var distance = indices_values.select(['iden','Distance'])
+var noDistance =  indices_values.filter(ee.Filter.lt('Distance',111.19))
+var lessDistance = indices_values.filter(ee.Filter.and(ee.Filter.gte('Distance',111.19), ee.Filter.lt('Distance',358.55)))
+var mediumDistance = indices_values.filter(ee.Filter.and(ee.Filter.gte('Distance',358.55), ee.Filter.lt('Distance',843.79)))
+var farDistance = indices_values.filter(ee.Filter.gte('Distance',843.79))
+Map.addLayer(noDistance, {color: 'red'}, 'noDistance');
+Map.addLayer(lessDistance, {color: 'orange'}, 'lessDistance');
+Map.addLayer(mediumDistance, {color: 'yellow'}, 'mediumDistance');
+Map.addLayer(farDistance, {color: 'green'}, 'farDistance');
+
+
+//Plot Legend Panel
+var legend = ui.Panel({style: {position: 'bottom-right', padding: '8px 15px'}});
+
+var makeRow = function(color, name) {
+  var colorBox = ui.Label({
+    style: {color: '#ffffff',
+      backgroundColor: color,
+      padding: '15px',
+      margin: '0 0 4px 0',
+    }
+  });
+  var description = ui.Label({
+    value: name,
+    style: {
+      fontSize: '20px',
+      margin: '0px 0 4px 6px',
+    }
+  }); 
+  return ui.Panel({
+    widgets: [colorBox, description],
+  layout: ui.Panel.Layout.flow('horizontal')}
+)};
+
+var title = ui.Label({
+  value: 'Legend (in meters)',
+  style: {fontWeight: 'bold',
+    fontSize: '18px',
+    margin: '0px 0 4px 0px'}});
+    
+legend.add(title);
+legend.add(makeRow('red','0.0 - 111.19'))
+legend.add(makeRow('orange','111.19 - 358.55'))
+legend.add(makeRow('yellow','358.55 - 843.79'))
+legend.add(makeRow('green','843.79 - 13348.86'))
+
+Map.add(legend);

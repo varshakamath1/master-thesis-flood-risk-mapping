@@ -1,0 +1,63 @@
+//############################
+// Final Flood Risk Map
+//############################
+
+
+//Access the CSV with risk levels
+var risk_values = ee.FeatureCollection("users/varshakamath/Final_flood_risk_mapping");
+
+var highRisk = risk_values.filter(ee.Filter.eq('risk_level','High Risk'))
+var mediumRisk = risk_values.filter(ee.Filter.eq('risk_level','Medium Risk'))
+var lowRisk = risk_values.filter(ee.Filter.eq('risk_level','Low Risk'))
+Map.addLayer(highRisk, {color: 'Red'}, 'highRisk');
+Map.addLayer(mediumRisk, {color: 'blue'}, 'mediumRisk');
+Map.addLayer(lowRisk, {color: '#7CFC00'}, 'lowRisk');
+
+
+var highRisk_22 = risk_values.filter(ee.Filter.and(ee.Filter.eq('risk_level','High Risk'), ee.Filter.eq('flooded_22',1)))
+var mediumRisk_22 = risk_values.filter(ee.Filter.and(ee.Filter.eq('risk_level','Medium Risk'), ee.Filter.eq('flooded_22',1)))
+var lowRisk_22 = risk_values.filter(ee.Filter.and(ee.Filter.eq('risk_level','Low Risk'), ee.Filter.eq('flooded_22',1)))
+
+var Flooded_values = risk_values.filter( ee.Filter.eq('flooded_22',1))
+
+Map.addLayer(highRisk_22, {color: 'yellow'}, 'highRisk_22');
+Map.addLayer(mediumRisk_22, {color: 'brown'}, 'mediumRisk_22');
+Map.addLayer(lowRisk_22, {color: 'purple'}, 'lowRisk_22');
+
+//Plot Legend Panel
+var legend = ui.Panel({style: {position: 'bottom-right', padding: '8px 15px'}});
+
+var makeRow = function(color, name) {
+  var colorBox = ui.Label({
+    style: {color: '#ffffff',
+      backgroundColor: color,
+      padding: '15px',
+      margin: '0 0 4px 0',
+    }
+  });
+  var description = ui.Label({
+    value: name,
+    style: {
+      fontSize: '20px',
+      margin: '0px 0 4px 6px',
+    }
+  }); 
+  return ui.Panel({
+    widgets: [colorBox, description],
+  layout: ui.Panel.Layout.flow('horizontal')}
+)};
+
+var title = ui.Label({
+  value: 'Legend',
+  style: {fontWeight: 'bold',
+    fontSize: '18px',
+    margin: '0px 0 4px 0px'}});
+    
+legend.add(title);
+legend.add(makeRow('Red','High Risk'))
+legend.add(makeRow('blue','Medium Risk'))
+legend.add(makeRow('#7CFC00','Low Risk'))
+legend.add(makeRow('yellow','2022 Flood - High Risk'))
+legend.add(makeRow('brown','2022 Flood - Medium Risk'))
+legend.add(makeRow('purple','2022 Flood - Low Risk'))
+Map.add(legend);

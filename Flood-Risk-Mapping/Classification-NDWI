@@ -1,0 +1,53 @@
+//###############################
+// Classification of NDWI Values
+//###############################
+
+
+//Access the CSV with all indices values
+var indices_values = ee.FeatureCollection("users/varshakamath/Final_risk_levels");
+
+print(indices_values.first())
+//Classify ndWi based on values
+
+var ndwi = indices_values.select(['iden','NDWI_Mean'])
+var ndwiNoWater = indices_values.filter(ee.Filter.lt('NDWI_Mean',0.0))
+var ndwiWater = indices_values.filter(ee.Filter.gte('NDWI_Mean',0.0))
+
+Map.addLayer(ndwiNoWater, {color: '#D27D2D'}, 'ndwiNoWater');
+Map.addLayer(ndwiWater, {color: 'blue'}, 'ndwiWater');
+
+
+//Plot Legend Panel
+var legend = ui.Panel({style: {position: 'middle-right', padding: '8px 15px'}});
+
+var makeRow = function(color, name) {
+  var colorBox = ui.Label({
+    style: {color: '#ffffff',
+      backgroundColor: color,
+      padding: '15px',
+      margin: '0 0 4px 0',
+    }
+  });
+  var description = ui.Label({
+    value: name,
+    style: {
+      fontSize: '20px',
+      margin: '0px 0 4px 6px',
+    }
+  }); 
+  return ui.Panel({
+    widgets: [colorBox, description],
+  layout: ui.Panel.Layout.flow('horizontal')}
+)};
+
+var title = ui.Label({
+  value: 'Legend',
+  style: {fontWeight: 'bold',
+    fontSize: '18px',
+    margin: '0px 0 4px 0px'}});
+    
+legend.add(title);
+legend.add(makeRow('#D27D2D','No Water'))
+legend.add(makeRow('blue','Water'))
+
+Map.add(legend);

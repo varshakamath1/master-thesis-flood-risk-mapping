@@ -1,0 +1,60 @@
+//###############################
+// Classification of NDVI Values
+//###############################
+
+
+//Access the CSV with all indices values
+var indices_values = ee.FeatureCollection("users/varshakamath/Final_risk_levels");
+
+
+//Classify ndvi based on values
+var ndvi = indices_values.select(['iden','NDVI_Mean'])
+var ndviWater =  indices_values.filter(ee.Filter.lt('NDVI_Mean',0.0))
+var ndviBarren = indices_values.filter(ee.Filter.and(ee.Filter.gte('NDVI_Mean',0.0), ee.Filter.lt('NDVI_Mean',0.2)))
+var ndviLowVegetation = indices_values.filter(ee.Filter.and(ee.Filter.gte('NDVI_Mean',0.2), ee.Filter.lt('NDVI_Mean',0.4)))
+var ndviModerateVegetation = indices_values.filter(ee.Filter.and(ee.Filter.gte('NDVI_Mean',0.4), ee.Filter.lt('NDVI_Mean',0.6)))
+var ndviHighVegetation = indices_values.filter(ee.Filter.gte('NDVI_Mean',0.6))
+Map.addLayer(ndviWater, {color: 'Blue'}, 'ndviWater');
+Map.addLayer(ndviBarren, {color: 'Brown'}, 'ndviBarren');
+Map.addLayer(ndviLowVegetation, {color: '#7CFC00'}, 'ndviLowVegetation');
+Map.addLayer(ndviModerateVegetation, {color: '#32CD32'}, 'ndviModerateVegetation');
+Map.addLayer(ndviHighVegetation, {color: '#008000'}, 'ndviHighVegetation');
+
+
+//Plot Legend Panel
+var legend = ui.Panel({style: {position: 'bottom-right', padding: '8px 15px'}});
+
+var makeRow = function(color, name) {
+  var colorBox = ui.Label({
+    style: {color: '#ffffff',
+      backgroundColor: color,
+      padding: '15px',
+      margin: '0 0 4px 0',
+    }
+  });
+  var description = ui.Label({
+    value: name,
+    style: {
+      fontSize: '20px',
+      margin: '0px 0 4px 6px',
+    }
+  }); 
+  return ui.Panel({
+    widgets: [colorBox, description],
+  layout: ui.Panel.Layout.flow('horizontal')}
+)};
+
+var title = ui.Label({
+  value: 'Legend',
+  style: {fontWeight: 'bold',
+    fontSize: '18px',
+    margin: '0px 0 4px 0px'}});
+    
+legend.add(title);
+legend.add(makeRow('Blue','Water, snow, cloud'))
+legend.add(makeRow('Brown','Barren land, rocks, built-up'))
+legend.add(makeRow('#7CFC00','Low vegetation'))
+legend.add(makeRow('#32CD32','Moderate vegetation'))
+legend.add(makeRow('#008000','High vegetation'))
+
+Map.add(legend);
